@@ -266,7 +266,7 @@ Resources:
   WebAppLaunchConfig:
     Type: AWS::AutoScaling::LaunchConfiguration
     Properties:
-      UserData: # Change to whatever s3 bucket the code is hosted at
+      UserData:
         Fn::Base64: !Sub |
           #!/bin/bash
           apt-get update -y
@@ -274,9 +274,9 @@ Resources:
           apt-get install apache2 -y
           systemctl start apache2.service
           cd /var/www/html
-          aws s3 cp s3://udagram-project/index.html .
-          chown -R www-data:www-data .
-      ImageId: ami-06358f49b5839867c
+          aws s3 cp s3://your-bucket-address/udacity.zip .
+          unzip -o udacity.zip
+      ImageId: ami-067f5c3d5a99edc80
       IamInstanceProfile: !Ref S3BucketsInstanceProfile
       SecurityGroups:
       - Ref: WebServerSecGroup
