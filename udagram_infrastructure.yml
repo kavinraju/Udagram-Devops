@@ -275,13 +275,13 @@ Resources:
           systemctl enable httpd
           systemctl start apache2.service
           cd /var/www/html
-          aws s3 cp s3://your-bucket-address/udacity.zip .
+          aws s3 cp s3://udagram-devops/udacity.zip .
           unzip -o udacity.zip
-      ImageId: ami-067f5c3d5a99edc80
+      ImageId: ami-0a07be880014c7b8e
       IamInstanceProfile: !Ref S3BucketsInstanceProfile
       SecurityGroups:
       - Ref: WebServerSecGroup
-      InstanceType: t3.medium
+      InstanceType: t3.micro
       BlockDeviceMappings:
       - DeviceName: "/dev/sdk"
         Ebs:
@@ -335,7 +335,7 @@ Resources:
   WebAppTargetGroup:
     Type: AWS::ElasticLoadBalancingV2::TargetGroup
     Properties:
-      HealthCheckIntervalSeconds: 11
+      HealthCheckIntervalSeconds: 10
       HealthCheckPath: /
       HealthCheckProtocol: HTTP
       HealthCheckTimeoutSeconds: 8
