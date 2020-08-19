@@ -219,11 +219,11 @@ Resources:
           FromPort: 0
           ToPort: 65535
           IpProtocol: tcp
-      SecurityGroupIngress: # This is intbound traffic for restricted internet access only through port 80 
+      SecurityGroupIngress: # This is inbound traffic for restricted internet access only through port 80 
         - IpProtocol: tcp
           CidrIp: 0.0.0.0/0
-          FromPort: 8080
-          ToPort: 8080
+          FromPort: 80
+          ToPort: 80
         - IpProtocol: tcp # Port 22 is used for SSH to troubleshoot
           CidrIp: 0.0.0.0/0
           FromPort: 22
