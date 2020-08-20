@@ -215,23 +215,27 @@ Resources:
       VpcId: !Ref VPC
       GroupName: Security Group for WebServer internal traffic
       SecurityGroupEgress:  # This is outbound traffic for unrestricted internet access 
-        - CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
           FromPort: 0
           ToPort: 65535
-          IpProtocol: tcp
+          CidrIp: 0.0.0.0/0
       SecurityGroupIngress: # This is inbound traffic for restricted internet access only through port 80 
         - IpProtocol: tcp
-          CidrIp: 0.0.0.0/0
           FromPort: 80
           ToPort: 80
-        - IpProtocol: tcp # Port 22 is used for SSH to troubleshoot
           CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp # Port 22 is used for SSH to troubleshoot
           FromPort: 22
           ToPort: 22
+          CidrIp: 0.0.0.0/0
 
   S3BucketsRole:
     Type: AWS::IAM::Role
     Properties:
+      RoleName: 
+        !Sub ${EnvironmentName}-Role
+      #ManagedPolicyArns: 
+       # - "arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess"
       AssumeRolePolicyDocument:
         Version: '2012-10-17'
         Statement:
@@ -248,9 +252,11 @@ Resources:
     Properties:
       PolicyName: S3BucketsPolicy
       PolicyDocument:
+        Version: '2012-10-17'
         Statement:
         - Effect: Allow
           Action:
+          - s3:Get*
           - s3:List*
           Resource: "*"
       Roles:
@@ -272,12 +278,12 @@ Resources:
           apt-get update -y
           apt-get install unzip awscli -y
           apt-get install apache2 -y
-          systemctl enable httpd
           systemctl start apache2.service
           cd /var/www/html
           aws s3 cp s3://udagram-devops/udacity.zip .
           unzip -o udacity.zip
-      ImageId: ami-0a07be880014c7b8e
+      ImageId: ami-003634241a8fcdec0 #ami-0a07be880014c7b8e
+      KeyName: UdacityUdagramKeyPair
       IamInstanceProfile: !Ref S3BucketsInstanceProfile
       SecurityGroups:
       - Ref: WebServerSecGroup
@@ -291,7 +297,9 @@ Resources:
   WebAppGroup:
     Type: AWS::AutoScaling::AutoScalingGroup
     Properties:
-      VPCZoneIdentifier: [ !Ref PrivateSubnet1, !Ref PrivateSubnet2 ]
+      VPCZoneIdentifier: 
+      - !Ref PrivateSubnet1
+      - !Ref PrivateSubnet2
       LaunchConfigurationName:
         Ref: WebAppLaunchConfig
       MinSize: '4'
@@ -389,3 +397,9 @@ Outputs:
     Value: !Ref PrivateSubnet2
     Export:
       Name: !Sub ${EnvironmentName}-PRI2-SN
+
+  WebAppLoadBalancerDNSName:
+    Description: DNS name or Public URL of the Load Balancer
+    Value: !Join [ "", [ 'http://', !GetAtt WebAppLB.DNSName ]]
+    Export:
+        Name: !Sub ${EnvironmentName}-LB-DNSName
